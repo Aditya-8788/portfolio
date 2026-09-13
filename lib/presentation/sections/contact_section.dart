@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/anchors.dart';
-import '../core/open.dart';
-import '../core/portfolio_data.dart';
+import '../../core/anchors.dart';
+import '../../core/open.dart';
+import '../../domain/entities/contact_link.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/hover_card.dart';
@@ -39,13 +41,7 @@ class _ContactSectionState extends State<ContactSection> {
 
   void _handleSubmit() {
     if (_formKey.currentState?.validate() ?? false) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Thanks for reaching out! The form is not connected to a backend yet.',
-          ),
-        ),
-      );
+      context.read<ContactBloc>().add(const ContactSubmitted());
       _nameController.clear();
       _emailController.clear();
       _messageController.clear();
@@ -57,58 +53,72 @@ class _ContactSectionState extends State<ContactSection> {
     final padding = contentPaddingOf(context);
     final wide = deviceOf(context) == DeviceType.desktop;
 
-    return Container(
-      key: widget.anchors.contact,
-      padding: EdgeInsets.fromLTRB(padding, 96, padding, 96),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: maxContentWidth),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ScrollReveal(
-                controller: widget.controller,
-                child: const SectionHeading(
-                  order: '05',
-                  label: 'Contact',
-                  title: 'Get in Touch',
-                  subtitle:
-                      'Have a project in mind or want to discuss opportunities? I\'d love to hear from you.',
-                ),
+    return BlocListener<ContactBloc, ContactState>(
+      listener: (context, state) {
+        if (state.submitted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Thanks for reaching out! The form is not connected to a backend yet.',
               ),
-              const SizedBox(height: 48),
-              if (wide)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 4, child: _ContactLinks(controller: widget.controller)),
-                    const SizedBox(width: 40),
-                    Expanded(
-                      flex: 5,
-                      child: _ContactForm(
-                        formKey: _formKey,
-                        nameController: _nameController,
-                        emailController: _emailController,
-                        messageController: _messageController,
-                        onSubmit: _handleSubmit,
-                        controller: widget.controller,
-                      ),
-                    ),
-                  ],
-                )
-              else ...[
-                _ContactLinks(controller: widget.controller),
-                const SizedBox(height: 40),
-                _ContactForm(
-                  formKey: _formKey,
-                  nameController: _nameController,
-                  emailController: _emailController,
-                  messageController: _messageController,
-                  onSubmit: _handleSubmit,
+            ),
+          );
+          context.read<ContactBloc>().add(const ContactFormReset());
+        }
+      },
+      child: Container(
+        key: widget.anchors.contact,
+        padding: EdgeInsets.fromLTRB(padding, 96, padding, 96),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ScrollReveal(
                   controller: widget.controller,
+                  child: const SectionHeading(
+                    order: '05',
+                    label: 'Contact',
+                    title: 'Get in Touch',
+                    subtitle:
+                        'Have a project in mind or want to discuss opportunities? I\'d love to hear from you.',
+                  ),
                 ),
+                const SizedBox(height: 48),
+                if (wide)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 4, child: _ContactLinks(controller: widget.controller)),
+                      const SizedBox(width: 40),
+                      Expanded(
+                        flex: 5,
+                        child: _ContactForm(
+                          formKey: _formKey,
+                          nameController: _nameController,
+                          emailController: _emailController,
+                          messageController: _messageController,
+                          onSubmit: _handleSubmit,
+                          controller: widget.controller,
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  _ContactLinks(controller: widget.controller),
+                  const SizedBox(height: 40),
+                  _ContactForm(
+                    formKey: _formKey,
+                    nameController: _nameController,
+                    emailController: _emailController,
+                    messageController: _messageController,
+                    onSubmit: _handleSubmit,
+                    controller: widget.controller,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -123,6 +133,8 @@ class _ContactLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final contactLinks =
+        context.read<ContactBloc>().state.contactLinks;
     return ScrollReveal(
       controller: controller,
       child: Column(

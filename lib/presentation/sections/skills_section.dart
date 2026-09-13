@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/anchors.dart';
-import '../core/portfolio_data.dart';
+import '../../core/anchors.dart';
+import '../../domain/entities/skill.dart';
+import '../../domain/entities/top_skill.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/scroll_reveal.dart';
 import '../widgets/section_heading.dart';
@@ -22,11 +25,27 @@ class SkillsSection extends StatefulWidget {
 
 class _SkillsSectionState extends State<SkillsSection>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController =
-      TabController(length: skillCategories.length, vsync: this);
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: context.read<SkillsBloc>().state.skillCategories.length,
+      vsync: this,
+    );
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) {
+      context.read<SkillsBloc>().add(SkillTabSelected(_tabController.index));
+    }
+  }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
@@ -36,108 +55,126 @@ class _SkillsSectionState extends State<SkillsSection>
     final padding = contentPaddingOf(context);
     final device = deviceOf(context);
     final sidePanel = device == DeviceType.desktop;
+    final topSkills = context.read<SkillsBloc>().state.topSkills;
 
-    final tabsColumn = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              dividerColor: Colors.transparent,
-              indicatorPadding: EdgeInsets.zero,
-              indicator: BoxDecoration(
-                gradient: AppColors.primaryGradient,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: Colors.white,
-              unselectedLabelColor: AppColors.textSecondary,
-              labelStyle: AppText.mono(12.5, weight: FontWeight.w600),
-              unselectedLabelStyle: AppText.mono(12.5),
-              padding: const EdgeInsets.all(2),
-              tabs: [
-                for (final category in skillCategories)
-                  Tab(
-                    height: 40,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(category.icon, size: 15),
-                        const SizedBox(width: 7),
-                        Text(category.label),
-                      ],
-                    ),
+    final tabsColumn = BlocBuilder<SkillsBloc, SkillsState>(
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  dividerColor: Colors.transparent,
+                  indicatorPadding: EdgeInsets.zero,
+                  indicator: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 320),
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          transitionBuilder: (child, animation) => FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
-          child: _SkillsGrid(
-            key: ValueKey(_tabController.index),
-            category: skillCategories[_tabController.index],
-            controller: widget.controller,
-          ),
-        ),
-      ],
-    );
-
-    return Container(
-      key: widget.anchors.skills,
-      padding: EdgeInsets.fromLTRB(padding, 96, padding, 96),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: maxContentWidth),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ScrollReveal(
-                controller: widget.controller,
-                child: const SectionHeading(
-                  order: '02',
-                  label: 'Skills',
-                  title: 'Tech Stack & Expertise',
-                  subtitle:
-                      'The tools and patterns I use to ship dependable Flutter apps end to end.',
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: AppColors.textSecondary,
+                  labelStyle: AppText.mono(12.5, weight: FontWeight.w600),
+                  unselectedLabelStyle: AppText.mono(12.5),
+                  padding: const EdgeInsets.all(2),
+                  tabs: [
+                    for (final category in state.skillCategories)
+                      Tab(
+                        height: 40,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(category.icon, size: 15),
+                            const SizedBox(width: 7),
+                            Text(category.label),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 44),
-              if (sidePanel)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 5, child: tabsColumn),
-                    const SizedBox(width: 36),
-                    Expanded(
-                      flex: 3,
-                      child: _TopSkillsPanel(controller: widget.controller),
-                    ),
-                  ],
-                )
-              else ...[
-                _TopSkillsPanel(controller: widget.controller),
-                const SizedBox(height: 36),
-                tabsColumn,
+            ),
+            const SizedBox(height: 24),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 320),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+              child: _SkillsGrid(
+                key: ValueKey(state.selectedTab),
+                category: state.skillCategories[state.selectedTab],
+                controller: widget.controller,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    return BlocListener<SkillsBloc, SkillsState>(
+      listener: (context, state) {
+        if (state.selectedTab != _tabController.index) {
+          _tabController.animateTo(state.selectedTab);
+        }
+      },
+      child: Container(
+        key: widget.anchors.skills,
+        padding: EdgeInsets.fromLTRB(padding, 96, padding, 96),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ScrollReveal(
+                  controller: widget.controller,
+                  child: const SectionHeading(
+                    order: '02',
+                    label: 'Skills',
+                    title: 'Tech Stack & Expertise',
+                    subtitle:
+                        'The tools and patterns I use to ship dependable Flutter apps end to end.',
+                  ),
+                ),
+                const SizedBox(height: 44),
+                if (sidePanel)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 5, child: tabsColumn),
+                      const SizedBox(width: 36),
+                      Expanded(
+                        flex: 3,
+                        child: _TopSkillsPanel(
+                          topSkills: topSkills,
+                          controller: widget.controller,
+                        ),
+                      ),
+                    ],
+                  )
+                else ...[
+                  _TopSkillsPanel(
+                    topSkills: topSkills,
+                    controller: widget.controller,
+                  ),
+                  const SizedBox(height: 36),
+                  tabsColumn,
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -146,8 +183,9 @@ class _SkillsSectionState extends State<SkillsSection>
 }
 
 class _TopSkillsPanel extends StatelessWidget {
-  const _TopSkillsPanel({required this.controller});
+  const _TopSkillsPanel({required this.topSkills, required this.controller});
 
+  final List<TopSkill> topSkills;
   final ScrollController controller;
 
   @override

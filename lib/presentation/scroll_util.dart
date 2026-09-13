@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'anchors.dart';
-import '../theme/app_theme.dart';
+import '../core/anchors.dart';
+import 'theme/app_theme.dart';
 
 /// Smooth-scrolls the [controller] so that the section identified by [id]
 /// sits just below the sticky navbar.

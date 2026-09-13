@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/anchors.dart';
-import '../core/portfolio_data.dart';
+import '../../core/anchors.dart';
+import '../../domain/entities/certificate_gallery_item.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/hover_card.dart';
 import '../widgets/scroll_reveal.dart';
@@ -59,6 +61,8 @@ class _CertificateGallery extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final certificateGallery =
+        context.read<CertificationsBloc>().state.certificateGallery;
     return LayoutBuilder(
       builder: (context, constraints) {
         final spacing = 20.0;

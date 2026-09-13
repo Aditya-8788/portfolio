@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:portfolio/main.dart';
+import 'package:portfolio/data/repositories/portfolio_repository_impl.dart';
+import 'package:portfolio/presentation/app.dart';
 
 Future<void> pumpAt(WidgetTester tester, Size size) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(const PortfolioApp());
+  await tester.pumpWidget(
+    const PortfolioApp(repository: PortfolioRepositoryImpl()),
+  );
   // Particle background loops forever, so avoid pumpAndSettle.
   await tester.pump(const Duration(milliseconds: 300));
 }
