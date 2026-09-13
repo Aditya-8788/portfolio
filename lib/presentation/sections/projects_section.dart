@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/anchors.dart';
-import '../core/open.dart';
-import '../core/portfolio_data.dart';
+import '../../core/anchors.dart';
+import '../../core/open.dart';
+import '../../domain/entities/project.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/hover_card.dart';
@@ -10,7 +12,7 @@ import '../widgets/scroll_reveal.dart';
 import '../widgets/section_heading.dart';
 import '../widgets/tech_chip.dart';
 
-class ProjectsSection extends StatefulWidget {
+class ProjectsSection extends StatelessWidget {
   const ProjectsSection({
     super.key,
     required this.anchors,
@@ -21,23 +23,11 @@ class ProjectsSection extends StatefulWidget {
   final ScrollController controller;
 
   @override
-  State<ProjectsSection> createState() => _ProjectsSectionState();
-}
-
-class _ProjectsSectionState extends State<ProjectsSection> {
-  String _filter = 'All';
-
-  List<Project> get _filtered {
-    if (_filter == 'All') return projects;
-    return projects.where((p) => p.categories.contains(_filter)).toList();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final padding = contentPaddingOf(context);
 
     return Container(
-      key: widget.anchors.projects,
+      key: anchors.projects,
       padding: EdgeInsets.fromLTRB(padding, 96, padding, 96),
       child: Center(
         child: ConstrainedBox(
@@ -46,7 +36,7 @@ class _ProjectsSectionState extends State<ProjectsSection> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ScrollReveal(
-                controller: widget.controller,
+                controller: controller,
                 child: const SectionHeading(
                   order: '03',
                   label: 'Projects',
@@ -55,47 +45,54 @@ class _ProjectsSectionState extends State<ProjectsSection> {
               ),
               const SizedBox(height: 40),
               _FilterRow(
-                filters: const ['All', 'Flutter & Firebase', 'Architecture-focused'],
-                selected: _filter,
-                onTap: (f) => setState(() => _filter = f),
-                controller: widget.controller,
+                filters: const [
+                  'All',
+                  'Flutter & Firebase',
+                  'Architecture-focused',
+                ],
+                controller: controller,
               ),
               const SizedBox(height: 36),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 360),
-                switchInCurve: Curves.easeOut,
-                switchOutCurve: Curves.easeIn,
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-                child: KeyedSubtree(
-                  key: ValueKey(_filter),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final spacing = 24.0;
-                      final isWide = constraints.maxWidth > 700;
-                      final itemWidth = isWide
-                          ? (constraints.maxWidth - spacing) / 2
-                          : constraints.maxWidth;
-                      return Wrap(
-                        spacing: spacing,
-                        runSpacing: spacing,
-                        children: [
-                          for (final project in _filtered)
-                            SizedBox(
-                              width: itemWidth,
-                              child: ScrollReveal(
-                                controller: widget.controller,
-                                duration: const Duration(milliseconds: 800),
-                                child: _ProjectCard(project: project),
-                              ),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+BlocBuilder<ProjectsBloc, ProjectsState>(
+                builder: (context, state) {
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 360),
+                    switchInCurve: Curves.easeOut,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                    child: KeyedSubtree(
+                      key: ValueKey(state.filter),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final spacing = 24.0;
+                          final isWide = constraints.maxWidth > 700;
+                          final itemWidth = isWide
+                              ? (constraints.maxWidth - spacing) / 2
+                              : constraints.maxWidth;
+                          return Wrap(
+                            spacing: spacing,
+                            runSpacing: spacing,
+                            children: [
+                              for (final project
+                                  in state.filteredProjects)
+                                SizedBox(
+                                  width: itemWidth,
+                                  child: ScrollReveal(
+                                    controller: controller,
+                                    duration: const Duration(milliseconds: 800),
+                                    child: _ProjectCard(project: project),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -106,35 +103,33 @@ class _ProjectsSectionState extends State<ProjectsSection> {
 }
 
 class _FilterRow extends StatelessWidget {
-  const _FilterRow({
-    required this.filters,
-    required this.selected,
-    required this.onTap,
-    required this.controller,
-  });
+  const _FilterRow({required this.filters, required this.controller});
 
   final List<String> filters;
-  final String selected;
-  final ValueChanged<String> onTap;
   final ScrollController controller;
 
   @override
   Widget build(BuildContext context) {
-    return ScrollReveal(
-      controller: controller,
-      offsetY: 18,
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          for (final f in filters)
-            _FilterChip(
-              label: f,
-              selected: selected == f,
-              onTap: () => onTap(f),
-            ),
-        ],
-      ),
+    return BlocBuilder<ProjectsBloc, ProjectsState>(
+      builder: (context, state) {
+        return ScrollReveal(
+          controller: controller,
+          offsetY: 18,
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              for (final f in filters)
+                _FilterChip(
+                  label: f,
+                  selected: state.filter == f,
+                  onTap: () =>
+                      context.read<ProjectsBloc>().add(ProjectFilterChanged(f)),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -203,31 +198,26 @@ class _FilterChipState extends State<_FilterChip> {
   }
 }
 
-class _ProjectCard extends StatefulWidget {
+class _ProjectCard extends StatelessWidget {
   const _ProjectCard({required this.project});
 
   final Project project;
 
   @override
-  State<_ProjectCard> createState() => _ProjectCardState();
-}
-
-class _ProjectCardState extends State<_ProjectCard> {
-  bool _expanded = false;
-
-  void _toggle() => setState(() => _expanded = !_expanded);
-
-  @override
   Widget build(BuildContext context) {
-    final p = widget.project;
+    final p = project;
+    final c = context.watch<ProjectsBloc>();
+    final expanded = c.state.expanded.contains(p.title);
     final hasCode = p.codeAvailable && p.githubUrl != null;
     // Collapsed: show 2 bullets only. Expanded: show the full list.
     final visibleBullets =
-        _expanded ? p.bullets : p.bullets.take(2).toList();
+        expanded ? p.bullets : p.bullets.take(2).toList();
     final canExpand = p.bullets.length > 2;
 
+    void toggle() => c.add(ProjectExpansionToggled(p.title));
+
     return HoverCard(
-      onTap: _toggle,
+      onTap: toggle,
       padding: const EdgeInsets.all(22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,11 +312,11 @@ class _ProjectCardState extends State<_ProjectCard> {
                       ],
                     ),
                   ),
-                if (canExpand && !_expanded)
+                if (canExpand && !expanded)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: InkWell(
-                      onTap: _toggle,
+                      onTap: toggle,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -351,13 +341,13 @@ class _ProjectCardState extends State<_ProjectCard> {
           SizedBox(
             width: double.infinity,
             child: GradientButton(
-              label: _buttonLabel(p, canExpand),
-              icon: _buttonIcon(p),
+              label: _buttonLabel(p, canExpand, expanded),
+              icon: _buttonIcon(p, expanded),
               outlined: true,
               compact: true,
               onPressed: hasCode
                   ? () => openUrl(p.githubUrl!)
-                  : _toggle,
+                  : toggle,
             ),
           ),
         ],
@@ -365,15 +355,15 @@ class _ProjectCardState extends State<_ProjectCard> {
     );
   }
 
-  String _buttonLabel(Project p, bool canExpand) {
+  String _buttonLabel(Project p, bool canExpand, bool expanded) {
     if (p.codeAvailable) return 'View Code';
-    if (_expanded) return 'Collapse';
+    if (expanded) return 'Collapse';
     return canExpand ? 'Expand Details' : 'Details';
   }
 
-  IconData _buttonIcon(Project p) {
+  IconData _buttonIcon(Project p, bool expanded) {
     if (p.codeAvailable) return Icons.code_rounded;
-    return _expanded
+    return expanded
         ? Icons.expand_less_rounded
         : Icons.expand_more_rounded;
   }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../core/anchors.dart';
-import '../core/open.dart';
-import '../core/portfolio_data.dart';
+import '../../core/anchors.dart';
+import '../../core/open.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/grad_text.dart';
 import '../widgets/gradient_button.dart';
@@ -33,10 +34,6 @@ class _NavBarState extends State<NavBar> {
     (id: 'contact', label: 'Contact'),
   ];
 
-  bool _scrolled = false;
-  bool _menuOpen = false;
-  String? _active;
-
   @override
   void initState() {
     super.initState();
@@ -65,119 +62,133 @@ class _NavBarState extends State<NavBar> {
       }
     }
     if (mounted) {
-      setState(() {
-        _scrolled = offset > 10;
-        _active = active;
-      });
+      context.read<NavigationBloc>().add(
+            NavigationScrollChanged(
+              offset: offset,
+              activeSection: active,
+            ),
+          );
     }
   }
 
   void _navigate(String id) {
-    setState(() => _menuOpen = false);
+    context.read<NavigationBloc>().add(const NavigationMenuClosed());
     widget.onNavigate(id);
   }
 
   @override
   Widget build(BuildContext context) {
     final isCompact = useCompactNav(context);
-    final navColor = (_scrolled || _menuOpen)
-        ? const Color(0xEA0B1322)
-        : const Color(0xA60B1322);
 
-    return Material(
-      color: Colors.transparent,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 240),
-          decoration: BoxDecoration(
-            color: navColor,
-            border: Border(
-              bottom: BorderSide(
-                color: _scrolled ? AppColors.border : Colors.transparent,
+    return BlocBuilder<NavigationBloc, NavigationState>(
+      builder: (context, state) {
+        final navColor = (state.scrolled || state.menuOpen)
+            ? const Color(0xEA0B1322)
+            : const Color(0xA60B1322);
+
+        return Material(
+          color: Colors.transparent,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 240),
+            decoration: BoxDecoration(
+              color: navColor,
+              border: Border(
+                bottom: BorderSide(
+                  color: state.scrolled ? AppColors.border : Colors.transparent,
+                ),
               ),
             ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-            SizedBox(
-              height: AppTheme.navBarHeight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 1,
-                      child: _Logo(
-                        onTap: () => _navigate('about'),
-                        compact: MediaQuery.sizeOf(context).width < 390,
-                      ),
-                    ),
-                    if (!isCompact) ...[
-                      ..._items.map((item) => _NavLink(
-                            label: item.label,
-                            active: _active == item.id,
-                            onTap: () => _navigate(item.id),
-                          )),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: AppTheme.navBarHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: _Logo(
+                            onTap: () => _navigate('about'),
+                            compact: MediaQuery.sizeOf(context).width < 390,
+                          ),
+                        ),
+                        if (!isCompact) ...[
+                          ..._items.map((item) => _NavLink(
+                                label: item.label,
+                                active: state.activeSection == item.id,
+                                onTap: () => _navigate(item.id),
+                              )),
                           const SizedBox(width: 12),
                           GradientButton(
                             label: 'Resume',
                             icon: Icons.download_rounded,
                             compact: true,
-                            onPressed: () => openUrl(AppLinks.resume),
+                            onPressed: () => openUrl(
+                                context.read<HeroBloc>().state.appLinks.resume),
                           ),
-                    ] else ...[
-                      IconButton(
-                        onPressed: () => setState(() => _menuOpen = !_menuOpen),
-                        icon: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            _menuOpen
-                                ? Icons.close_rounded
-                                : Icons.menu_rounded,
-                            key: ValueKey(_menuOpen),
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        tooltip: 'Menu',
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutCubic,
-              alignment: Alignment.topCenter,
-              child: !_menuOpen
-                  ? const SizedBox.shrink()
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final item in _items)
-                          _MobileLink(
-                            label: item.label,
-                            active: _active == item.id,
-                            onTap: () => _navigate(item.id),
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 8, 24, 18),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: GradientButton(
-                              label: 'Resume',
-                              icon: Icons.download_rounded,
-                              onPressed: () => openUrl(AppLinks.resume),
+                        ] else ...[
+                          IconButton(
+                            onPressed: () =>
+                                context.read<NavigationBloc>().add(const NavigationMenuToggled()),
+                            icon: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                state.menuOpen
+                                    ? Icons.close_rounded
+                                    : Icons.menu_rounded,
+                                key: ValueKey(state.menuOpen),
+                                color: AppColors.textPrimary,
+                              ),
                             ),
+                            tooltip: 'Menu',
                           ),
-                        ),
+                        ],
                       ],
                     ),
+                  ),
+                ),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: !state.menuOpen
+                      ? const SizedBox.shrink()
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final item in _items)
+                              _MobileLink(
+                                label: item.label,
+                                active: state.activeSection == item.id,
+                                onTap: () => _navigate(item.id),
+                              ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(24, 8, 24, 18),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: GradientButton(
+                                  label: 'Resume',
+                                  icon: Icons.download_rounded,
+                                  onPressed: () => openUrl(context
+                                      .read<HeroBloc>()
+                                      .state
+                                      .appLinks
+                                      .resume),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

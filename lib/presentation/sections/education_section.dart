@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/portfolio_data.dart';
+import '../../domain/entities/education_item.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/hover_card.dart';
 import '../widgets/scroll_reveal.dart';
@@ -15,6 +17,8 @@ class EducationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final padding = contentPaddingOf(context);
+    final educationItems =
+        context.read<EducationBloc>().state.educationItems;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(padding, 80, padding, 48),

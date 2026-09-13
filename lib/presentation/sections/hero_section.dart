@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/anchors.dart';
-import '../core/open.dart';
-import '../core/portfolio_data.dart';
+import '../../core/anchors.dart';
+import '../../core/open.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/grad_text.dart';
 import '../widgets/gradient_button.dart';
@@ -125,6 +126,7 @@ class _LeftPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final desktop = device == DeviceType.desktop;
+    final links = context.read<HeroBloc>().state.appLinks;
     return Column(
       crossAxisAlignment: desktop
           ? CrossAxisAlignment.center
@@ -157,17 +159,17 @@ class _LeftPane extends StatelessWidget {
           children: [
             _ContactChip(
               icon: Icons.location_on_rounded,
-              label: AppLinks.location,
+              label: links.location,
             ),
             _ContactChip(
               icon: Icons.mail_rounded,
-              label: AppLinks.email,
-              onTap: () => openUrl(AppLinks.mailto),
+              label: links.email,
+              onTap: () => openUrl(links.mailto),
             ),
           ],
         ),
         const SizedBox(height: 32),
-        // TODO: Links below are placeholders — swap them in portfolio_data.dart.
+        // TODO: Quote below is static — swap it in the local data source.
         _QuoteCard(center: !desktop),
         const SizedBox(height: 26),
         Wrap(
@@ -182,21 +184,21 @@ class _LeftPane extends StatelessWidget {
               icon: Icons.code_rounded,
               outlined: true,
               compact: true,
-              onPressed: () => openUrl(AppLinks.github),
+              onPressed: () => openUrl(links.github),
             ),
             GradientButton(
               label: 'LinkedIn',
               icon: Icons.business_center_rounded,
               outlined: true,
               compact: true,
-              onPressed: () => openUrl(AppLinks.linkedin),
+              onPressed: () => openUrl(links.linkedin),
             ),
             GradientButton(
               label: 'LeetCode',
               icon: Icons.terminal_rounded,
               outlined: true,
               compact: true,
-              onPressed: () => openUrl(AppLinks.leetcode),
+              onPressed: () => openUrl(links.leetcode),
             ),
           ],
         ),

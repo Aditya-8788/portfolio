@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../core/portfolio_data.dart';
+import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
 import '../widgets/gradient_button.dart';
 
@@ -13,6 +14,7 @@ class Footer extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = contentPaddingOf(context);
     final wide = deviceOf(context) == DeviceType.desktop;
+    final email = context.read<HeroBloc>().state.appLinks.email;
 
     return Container(
       decoration: const BoxDecoration(
@@ -56,7 +58,7 @@ class Footer extends StatelessWidget {
               ],
               const SizedBox(height: 22),
               Text(
-                '© 2026 ${AppLinks.email.split('@').last.replaceAll(".com", "").replaceAll('.gmail', '')}. Built with Flutter.',
+                '© 2026 ${email.split('@').last.replaceAll(".com", "").replaceAll('.gmail', '')}. Built with Flutter.',
                 style: AppText.mono(11.5, letterSpacing: 0.8),
                 textAlign: TextAlign.center,
               ),
