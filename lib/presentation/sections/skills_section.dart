@@ -70,7 +70,10 @@ class _SkillsSectionState extends State<SkillsSection>
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: AppColors.border),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 child: TabBar(
                   controller: _tabController,
                   isScrollable: true,
@@ -109,10 +112,8 @@ class _SkillsSectionState extends State<SkillsSection>
               duration: const Duration(milliseconds: 320),
               switchInCurve: Curves.easeOut,
               switchOutCurve: Curves.easeIn,
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: child,
-              ),
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
               child: _SkillsGrid(
                 key: ValueKey(state.selectedTab),
                 category: state.skillCategories[state.selectedTab],
@@ -142,9 +143,9 @@ class _SkillsSectionState extends State<SkillsSection>
                 ScrollReveal(
                   controller: widget.controller,
                   child: const SectionHeading(
-                    order: '02',
-                    label: 'Skills',
-                    title: 'Tech Stack & Expertise',
+                    order: '04',
+                    label: 'Tech Stack',
+                    title: 'Tech Stack',
                     subtitle:
                         'The tools and patterns I use to ship dependable Flutter apps end to end.',
                   ),
@@ -221,8 +222,11 @@ class _TopSkillsPanel extends StatelessWidget {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.show_chart_rounded,
-                              color: AppColors.cyan, size: 18),
+                          Icon(
+                            Icons.show_chart_rounded,
+                            color: AppColors.cyan,
+                            size: 18,
+                          ),
                           SizedBox(width: 9),
                           Text(
                             'TOP SKILLS',
@@ -242,8 +246,8 @@ class _TopSkillsPanel extends StatelessWidget {
                         // panel scrolls into view.
                         _SkillBar(
                           name: topSkills[i].name,
-                          fraction: topSkills[i].fraction *
-                              _stagger(t, i, 0.16),
+                          fraction:
+                              topSkills[i].fraction * _stagger(t, i, 0.16),
                         ),
                         if (i < topSkills.length - 1)
                           const SizedBox(height: 18),
@@ -282,15 +286,12 @@ class _SkillBar extends StatelessWidget {
             Expanded(
               child: Text(
                 name,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontSize: 14,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium!.copyWith(fontSize: 14),
               ),
             ),
-            Text(
-              '$percent%',
-              style: AppText.mono(12, color: AppColors.cyan),
-            ),
+            Text('$percent%', style: AppText.mono(12, color: AppColors.cyan)),
           ],
         ),
         const SizedBox(height: 9),
@@ -376,7 +377,8 @@ class _SkillsGrid extends StatelessWidget {
                   offsetY: 14,
                   child: _SkillCard(
                     skill: skills[i],
-                    dotColor: AppColors.dotPalette[i % AppColors.dotPalette.length],
+                    dotColor:
+                        AppColors.dotPalette[i % AppColors.dotPalette.length],
                   ),
                 ),
               ),
@@ -411,7 +413,10 @@ class _SkillCard extends StatelessWidget {
               color: dotColor,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(color: dotColor.withValues(alpha: 0.55), blurRadius: 7),
+                BoxShadow(
+                  color: dotColor.withValues(alpha: 0.55),
+                  blurRadius: 7,
+                ),
               ],
             ),
           ),
@@ -420,15 +425,12 @@ class _SkillCard extends StatelessWidget {
             child: Text(
               skill.name,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-          if (skill.core) ...[
-            const SizedBox(width: 8),
-            const _CoreTag(),
-          ],
+          if (skill.core) ...[const SizedBox(width: 8), const _CoreTag()],
         ],
       ),
     );

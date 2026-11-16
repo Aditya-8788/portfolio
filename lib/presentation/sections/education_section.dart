@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../core/anchors.dart';
 import '../../domain/entities/education_item.dart';
 import '../bloc/bloc.dart';
 import '../theme/app_theme.dart';
@@ -10,17 +11,22 @@ import '../widgets/section_heading.dart';
 import '../widgets/tech_chip.dart';
 
 class EducationSection extends StatelessWidget {
-  const EducationSection({super.key, required this.controller});
+  const EducationSection({
+    super.key,
+    required this.anchors,
+    required this.controller,
+  });
 
+  final Anchors anchors;
   final ScrollController controller;
 
   @override
   Widget build(BuildContext context) {
     final padding = contentPaddingOf(context);
-    final educationItems =
-        context.read<EducationBloc>().state.educationItems;
+    final educationItems = context.read<EducationBloc>().state.educationItems;
 
     return Padding(
+      key: anchors.education,
       padding: EdgeInsets.fromLTRB(padding, 80, padding, 48),
       child: Center(
         child: ConstrainedBox(
@@ -31,7 +37,7 @@ class EducationSection extends StatelessWidget {
               ScrollReveal(
                 controller: controller,
                 child: const SectionHeading(
-                  order: '01',
+                  order: '05',
                   label: 'Education',
                   title: 'Education',
                 ),
@@ -81,10 +87,7 @@ class _EducationCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
-      child: HoverCard(
-        padding: const EdgeInsets.all(24),
-        child: header,
-      ),
+      child: HoverCard(padding: const EdgeInsets.all(24), child: header),
     );
   }
 }
@@ -131,10 +134,9 @@ class _Content extends StatelessWidget {
             Expanded(
               child: Text(
                 item.degree,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall!
-                    .copyWith(fontFamily: AppText.displayFont),
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                  fontFamily: AppText.displayFont,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -146,8 +148,11 @@ class _Content extends StatelessWidget {
         const SizedBox(height: 12),
         Row(
           children: [
-            Icon(Icons.calendar_today_rounded,
-                size: 13, color: AppColors.textMuted),
+            Icon(
+              Icons.calendar_today_rounded,
+              size: 13,
+              color: AppColors.textMuted,
+            ),
             const SizedBox(width: 8),
             Flexible(
               child: Text(

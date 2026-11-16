@@ -4,8 +4,10 @@ import '../../domain/entities/certificate_gallery_item.dart';
 import '../../domain/entities/certification.dart';
 import '../../domain/entities/contact_link.dart';
 import '../../domain/entities/education_item.dart';
+import '../../domain/entities/experience_item.dart';
 import '../../domain/entities/project.dart';
 import '../../domain/entities/skill.dart';
+import '../../domain/entities/summary_info.dart';
 import '../../domain/entities/top_skill.dart';
 import '../../domain/repositories/portfolio_repository.dart';
 import '../datasources/portfolio_local_data_source.dart';
@@ -22,7 +24,13 @@ class PortfolioRepositoryImpl implements PortfolioRepository {
   AppLinks getAppLinks() => dataSource.appLinks;
 
   @override
+  SummaryInfo getSummary() => dataSource.summary;
+
+  @override
   List<EducationItem> getEducation() => dataSource.educationItems;
+
+  @override
+  List<ExperienceItem> getExperience() => dataSource.experienceItems;
 
   @override
   List<SkillCategory> getSkillCategories() => dataSource.skillCategories;

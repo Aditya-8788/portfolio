@@ -78,8 +78,8 @@ class _ContactSectionState extends State<ContactSection> {
                 ScrollReveal(
                   controller: widget.controller,
                   child: const SectionHeading(
-                    order: '05',
-                    label: 'Contact',
+                    order: '07',
+                    label: 'Get in Touch',
                     title: 'Get in Touch',
                     subtitle:
                         'Have a project in mind or want to discuss opportunities? I\'d love to hear from you.',
@@ -90,7 +90,10 @@ class _ContactSectionState extends State<ContactSection> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex: 4, child: _ContactLinks(controller: widget.controller)),
+                      Expanded(
+                        flex: 4,
+                        child: _ContactLinks(controller: widget.controller),
+                      ),
                       const SizedBox(width: 40),
                       Expanded(
                         flex: 5,
@@ -133,8 +136,7 @@ class _ContactLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final contactLinks =
-        context.read<ContactBloc>().state.contactLinks;
+    final contactLinks = context.read<ContactBloc>().state.contactLinks;
     return ScrollReveal(
       controller: controller,
       child: Column(
@@ -147,7 +149,9 @@ class _ContactLinks extends StatelessWidget {
           const SizedBox(height: 20),
           for (var i = 0; i < contactLinks.length; i++)
             Padding(
-              padding: EdgeInsets.only(bottom: i == contactLinks.length - 1 ? 0 : 12),
+              padding: EdgeInsets.only(
+                bottom: i == contactLinks.length - 1 ? 0 : 12,
+              ),
               child: ScrollReveal(
                 controller: controller,
                 delay: Duration(milliseconds: 50 * i),
@@ -192,10 +196,10 @@ class _ContactLinkCard extends StatelessWidget {
               children: [
                 Text(
                   link.label,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(fontSize: 13, fontFamily: AppText.displayFont),
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    fontSize: 13,
+                    fontFamily: AppText.displayFont,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
@@ -269,8 +273,9 @@ class _ContactForm extends StatelessWidget {
                 label: 'Your Name',
                 hint: 'e.g. Aditya',
                 icon: Icons.person_outline_rounded,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Please enter your name' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Please enter your name'
+                    : null,
               ),
               const SizedBox(height: 18),
               _FormTextField(
@@ -280,8 +285,12 @@ class _ContactForm extends StatelessWidget {
                 icon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Please enter an email';
-                  if (!v.contains('@') || !v.contains('.')) return 'Enter a valid email';
+                  if (v == null || v.trim().isEmpty) {
+                    return 'Please enter an email';
+                  }
+                  if (!v.contains('@') || !v.contains('.')) {
+                    return 'Enter a valid email';
+                  }
                   return null;
                 },
               ),
@@ -292,8 +301,9 @@ class _ContactForm extends StatelessWidget {
                 hint: 'How can I help?',
                 icon: Icons.chat_bubble_outline_rounded,
                 maxLines: 4,
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Please enter a message' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Please enter a message'
+                    : null,
               ),
               const SizedBox(height: 24),
               SizedBox(

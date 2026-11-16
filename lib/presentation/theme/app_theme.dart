@@ -53,11 +53,13 @@ class AppText {
   static const String bodyFont = 'Inter';
   static const String monoFont = 'JetBrainsMono';
 
-  static TextStyle mono(double size,
-      {Color? color,
-      FontWeight weight = FontWeight.w500,
-      double? letterSpacing,
-      double? height}) {
+  static TextStyle mono(
+    double size, {
+    Color? color,
+    FontWeight weight = FontWeight.w500,
+    double? letterSpacing,
+    double? height,
+  }) {
     return GoogleFonts.jetBrainsMono(
       fontSize: size,
       color: color ?? AppColors.textSecondary,
@@ -196,7 +198,10 @@ class AppTheme {
           fontSize: 14.5,
           color: AppColors.textSecondary,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),
@@ -228,15 +233,15 @@ DeviceType deviceOf(BuildContext context) {
 }
 
 double contentPaddingOf(BuildContext context) => switch (deviceOf(context)) {
-      DeviceType.mobile => 20,
-      DeviceType.tablet => 36,
-      DeviceType.desktop => 64,
-    };
+  DeviceType.mobile => 20,
+  DeviceType.tablet => 36,
+  DeviceType.desktop => 64,
+};
 
 /// Collapses the navbar into a compact hamburger menu below this width.
 /// Set high enough that the inline links + resume button always fit without
 /// overflowing on desktop.
 bool useCompactNav(BuildContext context) =>
-    MediaQuery.sizeOf(context).width < 1180;
+    MediaQuery.sizeOf(context).width < 1360;
 
 const double maxContentWidth = 1200;

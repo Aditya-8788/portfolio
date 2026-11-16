@@ -27,10 +27,12 @@ class NavBar extends StatefulWidget {
 
 class _NavBarState extends State<NavBar> {
   static const _items = [
-    (id: 'about', label: 'About'),
-    (id: 'skills', label: 'Skills'),
+    (id: 'summary', label: 'Summary'),
+    (id: 'experience', label: 'Experience'),
     (id: 'projects', label: 'Projects'),
-    (id: 'certifications', label: 'Certifications'),
+    (id: 'skills', label: 'Tech Stack'),
+    (id: 'education', label: 'Education'),
+    (id: 'certifications', label: 'Achievements'),
     (id: 'contact', label: 'Contact'),
   ];
 
@@ -63,11 +65,8 @@ class _NavBarState extends State<NavBar> {
     }
     if (mounted) {
       context.read<NavigationBloc>().add(
-            NavigationScrollChanged(
-              offset: offset,
-              activeSection: active,
-            ),
-          );
+        NavigationScrollChanged(offset: offset, activeSection: active),
+      );
     }
   }
 
@@ -116,23 +115,27 @@ class _NavBarState extends State<NavBar> {
                           ),
                         ),
                         if (!isCompact) ...[
-                          ..._items.map((item) => _NavLink(
-                                label: item.label,
-                                active: state.activeSection == item.id,
-                                onTap: () => _navigate(item.id),
-                              )),
+                          ..._items.map(
+                            (item) => _NavLink(
+                              label: item.label,
+                              active: state.activeSection == item.id,
+                              onTap: () => _navigate(item.id),
+                            ),
+                          ),
                           const SizedBox(width: 12),
                           GradientButton(
                             label: 'Resume',
                             icon: Icons.download_rounded,
                             compact: true,
                             onPressed: () => openUrl(
-                                context.read<HeroBloc>().state.appLinks.resume),
+                              context.read<HeroBloc>().state.appLinks.resume,
+                            ),
                           ),
                         ] else ...[
                           IconButton(
-                            onPressed: () =>
-                                context.read<NavigationBloc>().add(const NavigationMenuToggled()),
+                            onPressed: () => context.read<NavigationBloc>().add(
+                              const NavigationMenuToggled(),
+                            ),
                             icon: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 200),
                               child: Icon(
@@ -166,18 +169,19 @@ class _NavBarState extends State<NavBar> {
                                 onTap: () => _navigate(item.id),
                               ),
                             Padding(
-                              padding:
-                                  const EdgeInsets.fromLTRB(24, 8, 24, 18),
+                              padding: const EdgeInsets.fromLTRB(24, 8, 24, 18),
                               child: SizedBox(
                                 width: double.infinity,
                                 child: GradientButton(
                                   label: 'Resume',
                                   icon: Icons.download_rounded,
-                                  onPressed: () => openUrl(context
-                                      .read<HeroBloc>()
-                                      .state
-                                      .appLinks
-                                      .resume),
+                                  onPressed: () => openUrl(
+                                    context
+                                        .read<HeroBloc>()
+                                        .state
+                                        .appLinks
+                                        .resume,
+                                  ),
                                 ),
                               ),
                             ),
@@ -224,8 +228,11 @@ class _Logo extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 'AK',
-                style: AppText.mono(15,
-                    color: Colors.white, weight: FontWeight.w700),
+                style: AppText.mono(
+                  15,
+                  color: Colors.white,
+                  weight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(width: 13),
@@ -249,8 +256,11 @@ class _Logo extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       'Flutter Developer',
-                      style: AppText.mono(10.5,
-                          color: AppColors.cyan, letterSpacing: 1.4),
+                      style: AppText.mono(
+                        10.5,
+                        color: AppColors.cyan,
+                        letterSpacing: 1.4,
+                      ),
                     ),
                   ],
                 ],
@@ -292,8 +302,12 @@ class _NavLinkState extends State<_NavLink> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
           child: Text(
             widget.label,
-            style: AppText.mono(13,
-                color: color, weight: FontWeight.w500, letterSpacing: 0.6),
+            style: AppText.mono(
+              13,
+              color: color,
+              weight: FontWeight.w500,
+              letterSpacing: 0.6,
+            ),
           ),
         ),
       ),
@@ -323,7 +337,11 @@ class _MobileLink extends StatelessWidget {
             if (active) ...[
               GradientText(
                 '▸ ',
-                style: AppText.mono(13, color: Colors.white, weight: FontWeight.w500),
+                style: AppText.mono(
+                  13,
+                  color: Colors.white,
+                  weight: FontWeight.w500,
+                ),
                 gradient: AppColors.primaryGradient,
               ),
             ],

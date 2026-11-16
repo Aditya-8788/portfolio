@@ -9,19 +9,23 @@ import '../../domain/usecases/get_certificate_gallery.dart';
 import '../../domain/usecases/get_certifications.dart';
 import '../../domain/usecases/get_contact_links.dart';
 import '../../domain/usecases/get_education.dart';
+import '../../domain/usecases/get_experience.dart';
 import '../../domain/usecases/get_projects.dart';
 import '../../domain/usecases/get_skill_categories.dart';
+import '../../domain/usecases/get_summary.dart';
 import '../../domain/usecases/get_top_skills.dart';
 import '../bloc/bloc.dart';
 import '../scroll_util.dart';
 import '../sections/certifications_section.dart';
 import '../sections/contact_section.dart';
 import '../sections/education_section.dart';
+import '../sections/experience_section.dart';
 import '../sections/footer.dart';
 import '../sections/hero_section.dart';
 import '../sections/navbar.dart';
 import '../sections/projects_section.dart';
 import '../sections/skills_section.dart';
+import '../sections/summary_section.dart';
 import '../theme/app_theme.dart';
 
 class PortfolioPage extends StatefulWidget {
@@ -66,6 +70,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
           create: (_) => HeroBloc(getAppLinks: GetAppLinks(repository)),
         ),
         BlocProvider(
+          create: (_) => SummaryBloc(getSummary: GetSummary(repository)),
+        ),
+        BlocProvider(
           create: (_) => SkillsBloc(
             getSkillCategories: GetSkillCategories(repository),
             getTopSkills: GetTopSkills(repository),
@@ -75,8 +82,11 @@ class _PortfolioPageState extends State<PortfolioPage> {
           create: (_) => ProjectsBloc(getProjects: GetProjects(repository)),
         ),
         BlocProvider(
+          create: (_) => EducationBloc(getEducation: GetEducation(repository)),
+        ),
+        BlocProvider(
           create: (_) =>
-              EducationBloc(getEducation: GetEducation(repository)),
+              ExperienceBloc(getExperience: GetExperience(repository)),
         ),
         BlocProvider(
           create: (_) => CertificationsBloc(
@@ -101,15 +111,34 @@ class _PortfolioPageState extends State<PortfolioPage> {
               child: Column(
                 children: [
                   HeroSection(anchors: _anchors, controller: _scrollController),
-                  EducationSection(controller: _scrollController),
-                  SkillsSection(
-                      anchors: _anchors, controller: _scrollController),
+                  SummarySection(
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
+                  ExperienceSection(
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
                   ProjectsSection(
-                      anchors: _anchors, controller: _scrollController),
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
+                  SkillsSection(
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
+                  EducationSection(
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
                   CertificationsSection(
-                      anchors: _anchors, controller: _scrollController),
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
                   ContactSection(
-                      anchors: _anchors, controller: _scrollController),
+                    anchors: _anchors,
+                    controller: _scrollController,
+                  ),
                   Footer(scrollToTop: _scrollToTop),
                 ],
               ),
