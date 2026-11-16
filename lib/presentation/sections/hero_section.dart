@@ -137,7 +137,7 @@ class _LeftPane extends StatelessWidget {
         _AboutBadge(center: !desktop),
         const SizedBox(height: 28),
         GradientText(
-          'Building Scalable Cross-Platform Apps with Flutter',
+          'Flutter Developer at WhatBytes',
           textAlign: desktop ? TextAlign.start : TextAlign.center,
           style: Theme.of(context).textTheme.displayLarge!.copyWith(
                 fontSize: headlineSize,
@@ -145,7 +145,7 @@ class _LeftPane extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'Specializing in Clean Architecture, BLoC state management, and Firebase-backed Flutter applications — from pixel-perfect UI to production REST/Firebase integration.',
+          'Flutter Developer with industry experience building cross-platform mobile apps using Flutter, Dart, BLoC and Clean Architecture. Skilled in REST API integration, Firebase Authentication, Cloud Firestore, responsive UI and debugging with Flutter DevTools.',
           textAlign: desktop ? TextAlign.start : TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
@@ -388,7 +388,7 @@ class _QuoteCard extends StatelessWidget {
             const SizedBox(width: 14),
             Expanded(
               child: Text(
-                'Computer Science graduate (B.Tech, CGPA 6.9) with hands-on experience building production-grade Flutter applications using Clean Architecture, BLoC state management, and Firebase — from UI to backend integration.',
+                'Currently building Bodhi, Cloud Closet and Skadoosh at WhatBytes (Sep 2026 – Present) — B.Tech CSE (CGPA 6.9) with 90+ DSA problems solved and a Top 100 rank of 1800+ students at DBATU.',
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: AppColors.textPrimary,
                       fontFamily: AppText.displayFont,
@@ -412,10 +412,10 @@ class _TerminalCard extends StatelessWidget {
     'aditya-khochikar · Flutter Developer',
     r'aditya@flutter:~$ ls ./architecture',
     'clean/  bloc/  repositories/  features/',
-    r'aditya@flutter:~$ cat firebase.txt',
-    'auth · cloud_firestore · realtime',
+    r'aditya@flutter:~$ cat work.txt',
+    'whatbytes · bodhi · cloud_closet · skadoosh',
     r'aditya@flutter:~$ status',
-    'Open to opportunities ✓',
+    'Flutter Developer @ WhatBytes ✓',
   ];
 
   @override
